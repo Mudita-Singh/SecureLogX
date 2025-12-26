@@ -1,3 +1,7 @@
+# Security reports
+*.json
+*.enc
+
 # IntelliJ IDEA
 .idea/
 *.iml

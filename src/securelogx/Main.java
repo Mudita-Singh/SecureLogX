@@ -16,5 +16,11 @@ public class Main {
 
         generator.generate(incidents);
 
+        Vault vault = new Vault();
+
+        vault.encryptFile("incident_report.json", "incident_report.enc", "mypassword");
+        vault.decryptFile("incident_report.enc", "incident_report_decrypted.json", "mypassword");
+
+
     }
 }
