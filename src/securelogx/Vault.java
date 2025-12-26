@@ -6,6 +6,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.security.MessageDigest;
 import java.security.spec.KeySpec;
 import java.util.Base64;
 
@@ -14,7 +15,7 @@ public class Vault {
     private static final String ALGORITHM = "AES";
 
     private SecretKey generateKey(String password) throws Exception {
-        byte[] salt = "securelogx".getBytes(); // fixed salt (simple for learning)
+        byte[] salt = "securelogx".getBytes();
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256);
         SecretKey tmp = factory.generateSecret(spec);
@@ -30,8 +31,14 @@ public class Vault {
             byte[] fileData = readFile(inputFile);
             byte[] encryptedData = cipher.doFinal(fileData);
 
-            writeFile(outputFile, Base64.getEncoder().encode(encryptedData));
+            byte[] encoded = Base64.getEncoder().encode(encryptedData);
+            writeFile(outputFile, encoded);
+
+            // generate hash after encryption
+            generateHash(encoded, outputFile + ".hash");
+
             System.out.println("Report encrypted successfully.");
+            System.out.println("Integrity hash generated.");
 
         } catch (Exception e) {
             System.out.println("Encryption failed:");
@@ -41,20 +48,41 @@ public class Vault {
 
     public void decryptFile(String inputFile, String outputFile, String password) {
         try {
+            byte[] encryptedData = readFile(inputFile);
+            byte[] storedHash = readFile(inputFile + ".hash");
+
+            byte[] currentHash = calculateHash(encryptedData);
+
+            if (!MessageDigest.isEqual(storedHash, currentHash)) {
+                System.out.println("WARNING: File integrity check failed!");
+                return;
+            }
+
             SecretKey key = generateKey(password);
             Cipher cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, key);
 
-            byte[] encryptedData = Base64.getDecoder().decode(readFile(inputFile));
-            byte[] decryptedData = cipher.doFinal(encryptedData);
+            byte[] decoded = Base64.getDecoder().decode(encryptedData);
+            byte[] decryptedData = cipher.doFinal(decoded);
 
             writeFile(outputFile, decryptedData);
             System.out.println("Report decrypted successfully.");
+            System.out.println("Integrity verified.");
 
         } catch (Exception e) {
             System.out.println("Decryption failed:");
-            e.printStackTrace();   // 👈 IMPORTANT CHANGE
+            e.printStackTrace();
         }
+    }
+
+    private void generateHash(byte[] data, String hashFile) throws Exception {
+        byte[] hash = calculateHash(data);
+        writeFile(hashFile, hash);
+    }
+
+    private byte[] calculateHash(byte[] data) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        return digest.digest(data);
     }
 
     private byte[] readFile(String path) throws IOException {

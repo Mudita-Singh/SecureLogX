@@ -9,12 +9,16 @@ public class Incident {
     public Incident(String ipAddress, int failedAttempts) {
         this.ipAddress = ipAddress;
         this.failedAttempts = failedAttempts;
+        this.severity = calculateSeverity(failedAttempts);
+    }
 
-        // simple severity logic
-        if (failedAttempts >= 5) {
-            this.severity = "HIGH";
+    private String calculateSeverity(int attempts) {
+        if (attempts >= 8) {
+            return "HIGH";
+        } else if (attempts >= 5) {
+            return "MEDIUM";
         } else {
-            this.severity = "MEDIUM";
+            return "LOW";
         }
     }
 
