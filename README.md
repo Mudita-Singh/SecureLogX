@@ -8,7 +8,7 @@ The CLI version focuses purely on the core logic: reading logs, analyzing patter
 
 ---
 
-## What does SecureLogX do?
+# What does SecureLogX do?
 
 The CLI version of SecureLogX can:
 
@@ -21,7 +21,7 @@ The output helps in understanding whether a system might be under a login attack
 
 ---
 
-## How does it work?
+# How does it work?
 
 SecureLogX reads a log file line by line and looks for authentication failure messages such as “Failed password”.
 
@@ -32,7 +32,7 @@ Once the analysis is complete, the detected incidents are compiled into a report
 
 ---
 
-## Why this project?
+# Why this project?
 
 This project was created as a learning exercise to:
 
@@ -43,7 +43,7 @@ This project was created as a learning exercise to:
 
 ---
 
-## Technologies Used
+# Technologies Used
 
 - Java
 - File I/O
@@ -52,7 +52,7 @@ This project was created as a learning exercise to:
 
 ---
 
-## Project Status
+# Project Status
 
 - Log analysis logic implemented
 - Incident report generation working
