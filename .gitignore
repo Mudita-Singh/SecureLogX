@@ -1,6 +1,8 @@
-# Security reports
+# reports and security artifacts
+reports/
 *.json
 *.enc
+*.hash
 
 # IntelliJ IDEA
 .idea/
@@ -8,6 +10,7 @@
 
 # Logs
 *.log
+
 ### IntelliJ IDEA ###
 out/
 !**/src/main/**/out/

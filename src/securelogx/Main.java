@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
@@ -15,7 +16,7 @@ public class Main {
         System.out.print("Enter choice: ");
 
         int choice = scanner.nextInt();
-        scanner.nextLine(); // consume leftover newline
+        scanner.nextLine(); // consume newline
 
         if (choice == 1) {
 
@@ -25,34 +26,46 @@ public class Main {
             LogAnalyzer analyzer = new LogAnalyzer();
             ReportGenerator generator = new ReportGenerator();
 
+            System.out.println("[INFO] Analyzing logs...");
+
             List<String> logs = reader.readLogs(logFilePath);
             List<Incident> incidents = analyzer.analyze(logs);
 
-            generator.generate(incidents);
+            if (incidents.isEmpty()) {
+                System.out.println("[INFO] No suspicious activity detected.");
+            } else {
+                System.out.println("===== SECURITY INCIDENT REPORT =====");
+                for (Incident incident : incidents) {
+                    System.out.println(
+                            "Suspicious IP: " + incident.getIpAddress() +
+                                    " | Failed Attempts: " + incident.getFailedAttempts() +
+                                    " | Severity: " + incident.getSeverity()
+                    );
+                }
+            }
+
+            // Generate timestamped JSON report
+            String reportPath = generator.generate(incidents);
 
             System.out.print("Enter password to encrypt report: ");
             String password = scanner.nextLine();
 
-            vault.encryptFile(
-                    "incident_report.json",
-                    "incident_report.enc",
-                    password
-            );
+            // Encrypt using same timestamped name
+            String encryptedPath = reportPath.replace(".json", ".enc");
 
-            System.out.println("Report encrypted successfully.");
+            vault.encryptFile(reportPath, encryptedPath, password);
 
         } else if (choice == 2) {
+
+            System.out.print("Enter encrypted report path: ");
+            String encryptedPath = scanner.nextLine();
 
             System.out.print("Enter password to decrypt report: ");
             String password = scanner.nextLine();
 
-            vault.decryptFile(
-                    "incident_report.enc",
-                    "incident_report_decrypted.json",
-                    password
-            );
+            String decryptedPath = encryptedPath.replace(".enc", "_decrypted.json");
 
-            System.out.println("Report decrypted successfully.");
+            vault.decryptFile(encryptedPath, decryptedPath, password);
 
         } else {
             System.out.println("Invalid choice.");

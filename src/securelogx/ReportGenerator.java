@@ -2,41 +2,29 @@ package securelogx;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class ReportGenerator {
 
-    public void generate(List<Incident> incidents) {
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
-        System.out.println("===== SECURITY INCIDENT REPORT =====");
+    public String generate(List<Incident> incidents) {
 
-        if (incidents.isEmpty()) {
-            System.out.println("No suspicious activity detected.");
-        } else {
-            for (Incident incident : incidents) {
-                System.out.println(
-                        "Suspicious IP: " + incident.getIpAddress()
-                                + " | Failed Attempts: " + incident.getFailedAttempts()
-                                + " | Severity: " + incident.getSeverity()
-                );
-            }
-        }
+        String timestamp = LocalDateTime.now().format(FORMATTER);
+        String reportPath = "reports/incident_report_" + timestamp + ".json";
 
-        generateJsonReport(incidents);
-    }
+        try (FileWriter writer = new FileWriter(reportPath)) {
 
-    private void generateJsonReport(List<Incident> incidents) {
-
-        try (FileWriter writer = new FileWriter("incident_report.json")) {
-
-            writer.write("{\n");
-            writer.write("  \"incidents\": [\n");
+            writer.write("{\n  \"incidents\": [\n");
 
             for (int i = 0; i < incidents.size(); i++) {
                 Incident incident = incidents.get(i);
 
                 writer.write("    {\n");
-                writer.write("      \"ipAddress\": \"" + incident.getIpAddress() + "\",\n");
+                writer.write("      \"ip\": \"" + incident.getIpAddress() + "\",\n");
                 writer.write("      \"failedAttempts\": " + incident.getFailedAttempts() + ",\n");
                 writer.write("      \"severity\": \"" + incident.getSeverity() + "\"\n");
                 writer.write("    }");
@@ -47,13 +35,14 @@ public class ReportGenerator {
                 writer.write("\n");
             }
 
-            writer.write("  ]\n");
-            writer.write("}\n");
-
-            System.out.println("JSON report generated: incident_report.json");
+            writer.write("  ]\n}");
+            System.out.println("JSON report generated: " + reportPath);
 
         } catch (IOException e) {
-            System.out.println("Failed to generate JSON report.");
+            System.out.println("Failed to write report.");
+            e.printStackTrace();
         }
+
+        return reportPath; // IMPORTANT
     }
 }
