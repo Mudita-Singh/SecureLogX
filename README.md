@@ -1,28 +1,62 @@
-# SecureLogX
+# SecureLogX (CLI Version)
 
-SecureLogX is a Java-based project that analyzes system log files to detect suspicious login activity and generate security incident reports.
+SecureLogX is a Java-based command-line project that analyzes system log files to find suspicious login activity.
 
-The project focuses on automatically identifying repeated authentication failures from logs and includes a secure vault component for protecting generated security reports.
+This project was built to understand how real-world authentication logs work and how repeated failed login attempts can indicate possible brute-force or unauthorized access attempts.
 
----
-
-# What does this project do?
-
-SecureLogX currently:
-
-- Reads system log files (such as Linux SSH authentication logs)
-- Identifies repeated failed login attempts from the same IP address
-- Flags suspicious login behavior
-- Generates a clear security incident report
-
-The output helps in understanding whether a system might be under attack.
+The CLI version focuses purely on the core logic: reading logs, analyzing patterns, and generating incident reports.
 
 ---
 
-# How does it work?
+## What does SecureLogX do?
 
-SecureLogX processes system log files by automatically scanning them for suspicious login behavior. The system reads raw log entries and looks for repeated authentication failures coming from the same IP address, which is a common indicator of brute-force or unauthorized access attempts.
+The CLI version of SecureLogX can:
 
-When such patterns are detected, the relevant information is extracted and converted into a structured security incident. These incidents are then compiled into a report that summarizes potentially harmful activity in a clear and readable format.
+- Read system log files (for example, Linux SSH authentication logs)
+- Detect repeated failed login attempts
+- Identify IP addresses with suspicious behavior
+- Generate a structured security incident report
 
-The project also includes the foundation of a secure vault component, which is designed to protect generated security reports from unauthorized access. This vault focuses on safeguarding sensitive findings so that security reports can be safely stored or shared when required.
+The output helps in understanding whether a system might be under a login attack.
+
+---
+
+## How does it work?
+
+SecureLogX reads a log file line by line and looks for authentication failure messages such as “Failed password”.
+
+Each failed attempt is tracked by IP address.  
+If the same IP shows multiple failures, it is marked as suspicious.
+
+Once the analysis is complete, the detected incidents are compiled into a report that summarizes potentially harmful activity in a clear and readable format.
+
+---
+
+## Why this project?
+
+This project was created as a learning exercise to:
+
+- Understand how system authentication logs are structured
+- Learn how brute-force login attempts appear in real logs
+- Practice file handling and string processing in Java
+- Apply basic security concepts in a practical way
+
+---
+
+## Technologies Used
+
+- Java
+- File I/O
+- Core Java collections
+- Command-line execution
+
+---
+
+## Project Status
+
+- Log analysis logic implemented
+- Incident report generation working
+- CLI-based (no user interface by design)
+
+
+
