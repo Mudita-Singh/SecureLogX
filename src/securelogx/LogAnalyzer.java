@@ -10,9 +10,6 @@ import java.util.regex.Pattern;
 
 public class LogAnalyzer {
 
-    private static final int TIME_WINDOW_MINUTES = 5;
-    private static final int ATTEMPT_THRESHOLD = 3;
-
     // Optional year at start
     private static final Pattern LOG_PATTERN =
             Pattern.compile("(?:(\\d{4})\\s+)?(\\w+\\s+\\d+\\s+\\d+:\\d+:\\d+).*from ([0-9.]+)");
@@ -37,10 +34,13 @@ public class LogAnalyzer {
 
             LocalDateTime time = parseTime(timestampPart, yearPart);
 
-            ipAttempts.computeIfAbsent(ip, k -> new ArrayList<>()).add(time);
+            ipAttempts
+                    .computeIfAbsent(ip, k -> new ArrayList<>())
+                    .add(time);
         }
 
         for (Map.Entry<String, List<LocalDateTime>> entry : ipAttempts.entrySet()) {
+
             String ip = entry.getKey();
             List<LocalDateTime> times = entry.getValue();
 
@@ -48,7 +48,8 @@ public class LogAnalyzer {
 
             int count = countWithinWindow(times);
 
-            if (count >= ATTEMPT_THRESHOLD) {
+            // ✅ CONFIG-DRIVEN threshold
+            if (count >= Config.getFailedAttemptThreshold()) {
                 incidents.add(new Incident(ip, count));
             }
         }
@@ -57,14 +58,20 @@ public class LogAnalyzer {
     }
 
     private int countWithinWindow(List<LocalDateTime> times) {
+
         int maxCount = 0;
 
         for (int i = 0; i < times.size(); i++) {
+
             LocalDateTime start = times.get(i);
             int count = 1;
 
             for (int j = i + 1; j < times.size(); j++) {
-                if (times.get(j).isBefore(start.plusMinutes(TIME_WINDOW_MINUTES))) {
+
+                // ✅ CONFIG-DRIVEN time window
+                if (times.get(j).isBefore(
+                        start.plusMinutes(Config.getTimeWindowMinutes())
+                )) {
                     count++;
                 } else {
                     break;
